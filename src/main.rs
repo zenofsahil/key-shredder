@@ -1,4 +1,4 @@
-use eframe::egui::{self, Event};
+use eframe::egui::{self, Event, Key, Modifiers};
 
 fn main() {
     let options = eframe::NativeOptions::default();
@@ -15,9 +15,13 @@ struct KeyShredder {
 
 impl eframe::App for KeyShredder {
      fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-         let keys_down = ctx.input().keys_down.clone();
-
-         println!("Keys pressed: {:?}", &keys_down);
+        for e in ctx.input().events.iter() {
+            match *e {
+                Event::Key { key, pressed, modifiers } if pressed == true => {
+                    println!("{:?}, {:?}, {:?}", key, pressed, modifiers);
+                },
+                _ => {},
+            }
+        }
      }
 }
-
