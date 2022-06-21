@@ -1,10 +1,15 @@
 use crate::ui::utils;
 use eframe::egui::{self, Color32};
 
+pub enum KeyState {
+    Pressed,
+    Released
+}
+
 pub struct Key {
     pub key: egui::Key,
     pub character: String ,
-    pub pressed: bool
+    pub state: KeyState
 }
 
 impl Key {
@@ -13,7 +18,7 @@ impl Key {
         let c = c.to_string();
         Self {
             character: c.clone(),
-            pressed: false,
+            state: KeyState::Released,
             key: converter.char2keys
                 .get(&c.to_string() as &str)
                 .copied()
@@ -25,7 +30,7 @@ impl Key {
         let converter = utils::KeyConversion::new();
         Self {
             key,
-            pressed: false,
+            state: KeyState::Released,
             character: converter.keys2char
                 .get(&key)
                 .copied()
@@ -114,13 +119,13 @@ impl Keyboard {
 
 #[cfg(test)]
 mod test_keys_struct {
-    use crate::ui::keyboard::Key;
+    use crate::ui::keyboard::{Key, KeyState};
     use eframe::egui;
 
     #[test]
     fn test_key_initialization_from_string() {
         let key_a = Key::from_str("a");
-        assert_eq!(key_a.pressed, false);
+        assert!(matches!(key_a.state, KeyState::Released));
         assert_eq!(key_a.character, "a");
         assert_eq!(key_a.key, egui::Key::A);
     }
