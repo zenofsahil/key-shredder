@@ -87,13 +87,7 @@ impl Keyboard {
                 ui.spacing_mut().item_spacing = (10.0, 0.0).into();
                 ui.horizontal(|ui| {
                     for key in &self.first_row {
-                        egui::Frame::none().fill(Color32::BLACK).show(ui, |ui| {
-                            ui.label(
-                                egui::RichText::new(format!("{:?}", key))
-                                .size(20.)
-                                .color(Color32::WHITE)
-                            )
-                        });
+                        key.draw(ui);
                     }
                 });
             });
@@ -101,13 +95,7 @@ impl Keyboard {
                 ui.spacing_mut().item_spacing = (10.0, 0.0).into();
                 ui.horizontal(|ui| {
                     for key in &self.second_row {
-                        egui::Frame::none().fill(Color32::BLACK).show(ui, |ui| {
-                            ui.label(
-                                egui::RichText::new(format!("{:?}", key))
-                                .size(20.)
-                                .color(Color32::WHITE)
-                            )
-                        });
+                        key.draw(ui);
                     }
                 });
             });
@@ -115,13 +103,7 @@ impl Keyboard {
                 ui.horizontal(|ui| {
                     ui.spacing_mut().item_spacing = (10.0, 0.0).into();
                     for key in &self.third_row {
-                        egui::Frame::none().fill(Color32::BLACK).show(ui, |ui| {
-                            ui.label(
-                                egui::RichText::new(format!("{:?}", key))
-                                .size(20.)
-                                .color(Color32::WHITE)
-                            )
-                        });
+                        key.draw(ui);
                     }
                 });
             });
