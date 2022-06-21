@@ -111,3 +111,37 @@ impl Keyboard {
     }
 }
 
+
+#[cfg(test)]
+mod test_keys_struct {
+    use crate::ui::keyboard::Key;
+    use eframe::egui;
+
+    #[test]
+    fn test_key_initialization_from_string() {
+        let key_a = Key::from_str("a");
+        assert_eq!(key_a.pressed, false);
+        assert_eq!(key_a.character, "a");
+        assert_eq!(key_a.key, egui::Key::A);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_period_key_initialization_from_string() {
+        let _period = Key::from_str(".");
+    }
+}
+
+#[cfg(test)]
+mod test_keyboard_struct {
+    use crate::ui::keyboard::Keyboard;
+    // use eframe::egui;
+
+    #[test]
+    fn test_keyboard_initialization() {
+        let keyboard = Keyboard::default();
+        assert_eq!(keyboard.first_row.len(), 10);
+        assert_eq!(keyboard.second_row.len(), 9);
+        assert_eq!(keyboard.third_row.len(), 7);
+    }
+}
