@@ -1,36 +1,60 @@
 use eframe::egui;
 use std::collections::HashMap;
 
-const KEY2CHAR: HashMap<egui::Key, String> = HashMap::from([
-        (egui::Key::A, String::from("a")),
-        (egui::Key::B, String::from("b")),
-        (egui::Key::C, String::from("c")),
-        (egui::Key::D, String::from("d")),
-        (egui::Key::E, String::from("e")),
-        (egui::Key::F, String::from("f")),
-        (egui::Key::G, String::from("g")),
-        (egui::Key::H, String::from("h")),
-        (egui::Key::I, String::from("i")),
-        (egui::Key::J, String::from("j")),
-        (egui::Key::K, String::from("k")),
-        (egui::Key::L, String::from("l")),
-        (egui::Key::M, String::from("m")),
-        (egui::Key::N, String::from("n")),
-        (egui::Key::O, String::from("o")),
-        (egui::Key::P, String::from("p")),
-        (egui::Key::Q, String::from("q")),
-        (egui::Key::R, String::from("r")),
-        (egui::Key::S, String::from("s")),
-        (egui::Key::T, String::from("t")),
-        (egui::Key::U, String::from("u")),
-        (egui::Key::V, String::from("v")),
-        (egui::Key::W, String::from("w")),
-        (egui::Key::X, String::from("x")),
-        (egui::Key::Y, String::from("y")),
-        (egui::Key::Z, String::from("z"))
-]);
+pub struct KeyConversion<'a> {
+    keys2char: HashMap<egui::Key, &'a str>,
+    char2keys: HashMap<&'a str, egui::Key>
+}
 
-const CHAR2KEY: HashMap<String, egui::Key> = KEY2CHAR
-    .into_iter()
-    .map(|(key, val)| (val, key))
-    .collect();
+impl<'a> KeyConversion<'a> {
+    pub fn new() -> Self {
+        let keys2char = HashMap::from([
+                (egui::Key::A, "a"),
+                (egui::Key::B, "b"),
+                (egui::Key::C, "c"),
+                (egui::Key::D, "d"),
+                (egui::Key::E, "e"),
+                (egui::Key::F, "f"),
+                (egui::Key::G, "g"),
+                (egui::Key::H, "h"),
+                (egui::Key::I, "i"),
+                (egui::Key::J, "j"),
+                (egui::Key::K, "k"),
+                (egui::Key::L, "l"),
+                (egui::Key::M, "m"),
+                (egui::Key::N, "n"),
+                (egui::Key::O, "o"),
+                (egui::Key::P, "p"),
+                (egui::Key::Q, "q"),
+                (egui::Key::R, "r"),
+                (egui::Key::S, "s"),
+                (egui::Key::T, "t"),
+                (egui::Key::U, "u"),
+                (egui::Key::V, "v"),
+                (egui::Key::W, "w"),
+                (egui::Key::X, "x"),
+                (egui::Key::Y, "y"),
+                (egui::Key::Z, "z")
+        ]);
+
+        let char2keys = keys2char
+            .iter()
+            .map(|(key, val)| (val.clone(), key.clone()))
+            .collect();
+
+        Self {
+            keys2char,
+            char2keys
+        }
+    }
+
+    pub fn map_string_to_keys(&self, string: &str) -> Vec<egui::Key> {
+        string
+        .chars()
+        .map(|x| x.to_string())
+        .flat_map(|x| self.char2keys.get(&x as &str))
+        .cloned()
+        .collect::<Vec<_>>()
+    }
+}
+
