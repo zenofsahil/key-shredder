@@ -2,8 +2,8 @@ use eframe::egui;
 use std::collections::HashMap;
 
 pub struct KeyConversion<'a> {
-    keys2char: HashMap<egui::Key, &'a str>,
-    char2keys: HashMap<&'a str, egui::Key>
+    pub keys2char: HashMap<egui::Key, &'a str>,
+    pub char2keys: HashMap<&'a str, egui::Key>
 }
 
 impl<'a> KeyConversion<'a> {
