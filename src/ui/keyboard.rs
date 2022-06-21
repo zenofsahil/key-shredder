@@ -54,11 +54,28 @@ pub struct Keyboard {
 
 impl Keyboard {
     pub fn default() -> Self {
-        let converter = utils::KeyConversion::new();
+        let first_row = "qwertyuiop"
+            .chars()
+            .map(|x| x.to_string())
+            .map(|x| Key::from_str(&x))
+            .collect();
+
+        let second_row = "asdfghjkl"
+            .chars()
+            .map(|x| x.to_string())
+            .map(|x| Key::from_str(&x))
+            .collect();
+
+        let third_row = "zxcvbnm"
+            .chars()
+            .map(|x| x.to_string())
+            .map(|x| Key::from_str(&x))
+            .collect();
+
         Self {
-            first_row: converter.map_string_to_keys("qwertyuiop"),
-            second_row: converter.map_string_to_keys("asdfghjkl"),
-            third_row: converter.map_string_to_keys("zxcvbnm")
+            first_row,
+            second_row,
+            third_row
         }
     }
 
