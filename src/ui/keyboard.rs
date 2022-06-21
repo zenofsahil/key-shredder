@@ -1,17 +1,18 @@
 use crate::ui::utils;
 use eframe::egui::{self, Color32};
 
-struct Key<'a> {
-    key: egui::Key,
-    character: &'a str ,
-    pressed: bool
+pub struct Key {
+    pub key: egui::Key,
+    pub character: String ,
+    pub pressed: bool
 }
 
-impl<'a> Key<'a> {
-    fn from_str(c: &'a str) -> Self {
+impl Key {
+    pub fn from_str(c: &str) -> Self {
         let converter = utils::KeyConversion::new();
+        let c = c.to_string();
         Self {
-            character: c,
+            character: c.clone(),
             pressed: false,
             key: converter.char2keys
                 .get(&c.to_string() as &str)
@@ -20,7 +21,7 @@ impl<'a> Key<'a> {
         }
     }
 
-    fn from_key(key: egui::Key) -> Self {
+    pub fn from_key(key: egui::Key) -> Self {
         let converter = utils::KeyConversion::new();
         Self {
             key,
@@ -28,14 +29,15 @@ impl<'a> Key<'a> {
             character: converter.keys2char
                 .get(&key)
                 .copied()
-                .unwrap_or("")
+                .map(|x| x.to_string())
+                .unwrap_or(String::new())
         }
     }
 
-    fn draw(&self, ui: &mut egui::Ui) {
+    pub fn draw(&self, ui: &mut egui::Ui) {
         egui::Frame::none().fill(Color32::BLACK).show(ui, |ui| {
             ui.label(
-                egui::RichText::new(format!("{:?}", self.character))
+                egui::RichText::new(&self.character)
                 .size(20.)
                 .color(Color32::WHITE)
             )
@@ -45,9 +47,9 @@ impl<'a> Key<'a> {
 
 #[derive(Default)]
 pub struct Keyboard {
-    pub first_row: Vec<egui::Key>,
-    pub second_row: Vec<egui::Key>,
-    pub third_row: Vec<egui::Key>,
+    pub first_row: Vec<Key>,
+    pub second_row: Vec<Key>,
+    pub third_row: Vec<Key>,
 }
 
 impl Keyboard {
