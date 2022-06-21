@@ -1,6 +1,48 @@
 use crate::ui::utils;
 use eframe::egui::{self, Color32};
 
+struct Key<'a> {
+    key: egui::Key,
+    character: &'a str ,
+    pressed: bool
+}
+
+impl<'a> Key<'a> {
+    fn from_str(c: &'a str) -> Self {
+        let converter = utils::KeyConversion::new();
+        Self {
+            character: c,
+            pressed: false,
+            key: converter.char2keys
+                .get(&c.to_string() as &str)
+                .copied()
+                .expect(&format!("Invalid key: {}", c))
+        }
+    }
+
+    fn from_key(key: egui::Key) -> Self {
+        let converter = utils::KeyConversion::new();
+        Self {
+            key,
+            pressed: false,
+            character: converter.keys2char
+                .get(&key)
+                .copied()
+                .unwrap_or("")
+        }
+    }
+
+    fn draw(&self, ui: &mut egui::Ui) {
+        egui::Frame::none().fill(Color32::BLACK).show(ui, |ui| {
+            ui.label(
+                egui::RichText::new(format!("{:?}", self.character))
+                .size(20.)
+                .color(Color32::WHITE)
+            )
+        });
+    }
+}
+
 #[derive(Default)]
 pub struct Keyboard {
     pub first_row: Vec<egui::Key>,
