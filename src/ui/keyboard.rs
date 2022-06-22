@@ -37,13 +37,27 @@ impl Key {
         } else {
             (Color32::WHITE, Color32::BLACK)
         };
-        egui::Frame::none().fill(key_color).show(ui, |ui| {
-            ui.label(
-                egui::RichText::new(&self.character)
-                .size(20.)
-                .color(text_color)
-            )
-        });
+
+        use egui::Key::*;
+
+        match self.key {
+            A | B | C | D | E | F | G | H | I | J | K | L | M |
+            N | O | P | Q | R | S | T | U | V | W | X | Y | Z => {
+                egui::Frame::none().fill(key_color).show(ui, |ui| {
+                    ui.label(
+                        egui::RichText::new(&self.character)
+                        .size(20.)
+                        .color(text_color)
+                    )
+                });
+            },
+            Space => {
+                panic!("Not implemented.")
+            },
+            _ => {
+                panic!("Not implemented.")
+            }
+        }
     }
 }
 
