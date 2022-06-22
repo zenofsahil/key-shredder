@@ -47,14 +47,5 @@ impl<'a> KeyConversion<'a> {
             char2keys
         }
     }
-
-    pub fn map_string_to_keys(&self, string: &str) -> Vec<egui::Key> {
-        string
-        .chars()
-        .map(|x| x.to_string())
-        .flat_map(|x| self.char2keys.get(&x as &str))
-        .cloned()
-        .collect::<Vec<_>>()
-    }
 }
 
