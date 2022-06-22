@@ -5,7 +5,8 @@ use crate::ui::Keyboard;
 
 #[derive(Default)]
 pub struct KeyShredder {
-    keyboard: Keyboard
+    keyboard: Keyboard,
+    text: String
 }
 
 impl eframe::App for KeyShredder {
@@ -15,6 +16,13 @@ impl eframe::App for KeyShredder {
             ui.with_layout(egui::Layout::right_to_left(), |ui| {
                 ui.heading("Key Shredder");
             })
+        });
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.add(
+                egui::TextEdit::multiline(&mut self.text)
+                .desired_width(f32::INFINITY)
+                .hint_text("Enter you text here")
+            );
         });
         let events = ctx.input().events.clone(); // clone to avoid deadlock
         for event in events.iter() {
@@ -50,7 +58,8 @@ impl eframe::App for KeyShredder {
 impl KeyShredder {
     pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
         Self {
-            keyboard: Keyboard::default()
+            keyboard: Keyboard::default(),
+            text: String::from("Shred away")
         }
     }
 }
