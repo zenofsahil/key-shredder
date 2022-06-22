@@ -52,7 +52,15 @@ impl Key {
                 });
             },
             Space => {
-                panic!("Not implemented.")
+                egui::Frame::none()
+                    .inner_margin(egui::style::Margin::symmetric(90., 0.0))
+                    .fill(key_color).show(ui, |ui| {
+                    ui.label(
+                        egui::RichText::new(&self.character)
+                        .size(20.)
+                        .color(text_color)
+                    )
+                });
             },
             _ => {
                 panic!("Not implemented.")
@@ -84,6 +92,7 @@ pub struct Keyboard {
     pub first_row: Row,
     pub second_row: Row,
     pub third_row: Row,
+    pub fourth_row: Row,
     pub pressed_key: Option<Key>
 }
 
@@ -92,11 +101,20 @@ impl Keyboard {
         let first_row = Row::from_chars("qwertyuiop");
         let second_row = Row::from_chars("asdfghjkl");
         let third_row = Row::from_chars("zxcvbnm");
+        let fourth_row = Row {
+            keys: vec![
+                Key {
+                    key: egui::Key::Space,
+                    character: String::from(" ")
+                }
+            ]
+        };
 
         Self {
             first_row,
             second_row,
             third_row,
+            fourth_row,
             pressed_key: None
         }
     }
@@ -108,7 +126,8 @@ impl Keyboard {
             let row_margins = vec![
                 (&self.first_row, (10., 0.)),
                 (&self.second_row, (30., 0.)),
-                (&self.third_row, (40., 0.))
+                (&self.third_row, (40., 0.)),
+                (&self.fourth_row, (10., 0.))
             ];
 
             for (row, (x_margin, y_margin)) in row_margins {
@@ -120,7 +139,7 @@ impl Keyboard {
                         for key in &row.keys {
                             match &self.pressed_key {
                                 Some(pressed_key) => {
-                                    if key.character == pressed_key.character {
+                                    if key.key == pressed_key.key {
                                         key.draw(ui, true);
                                     } else {
                                         key.draw(ui, false);
