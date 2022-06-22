@@ -1,4 +1,4 @@
 mod keyboard;
 mod utils;
 
-pub use keyboard::Keyboard;
+pub use keyboard::{ Keyboard, Key };

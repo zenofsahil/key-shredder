@@ -1,7 +1,7 @@
 mod ui;
 
 use eframe::egui;
-use crate::ui::Keyboard;
+use crate::ui::{ Keyboard, Key };
 
 #[derive(Default)]
 pub struct KeyShredder {
@@ -16,48 +16,27 @@ impl eframe::App for KeyShredder {
                 ui.heading("Key Shredder");
             })
         });
+        let events = ctx.input().events.clone(); // clone to avoid deadlock
+        for event in events.iter() {
+            match *event {
+                egui::Event::Key { key, pressed, modifiers: _ } if pressed == true => {
+                    self.keyboard.pressed_key = Some(Key::from_key(key));
+                    egui::TopBottomPanel::bottom("Keyboard").show(ctx, |ui| {
+                        self.keyboard.draw(ui);
+                    });
+                },
+                _ => { },
+            }
+        };
+        if let Some(pressed_key) = &self.keyboard.pressed_key {
+            if ctx.input().key_released(pressed_key.key) {
+                self.keyboard.pressed_key = None;
+            }
+        }
         egui::TopBottomPanel::bottom("Keyboard").show(ctx, |ui| {
             self.keyboard.draw(ui);
         });
     }
-
-    // fn _update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
-    //     // ctx.request_repaint();
-    //     tracing::error!("Running...");
-    //     ctx.set_visuals(egui::Visuals::dark());
-    //     let events = ctx.input().events.clone(); // clone to avoid deadlock
-    //     let es = events.into_iter().map(|event| {
-    //         match event {
-    //             Event::Key { key, pressed, modifiers } if pressed == true => {
-    //                 println!("{:?}, {:?}, {:?}", key, pressed, modifiers);
-    //                 Some(key)
-    //             },
-    //             _ => {
-    //                 println!("No key pressed");
-    //                 None
-    //             },
-    //         }
-    //     });
-
-    //     for e in es {
-    //         self.render_keyboard(ctx, e);
-    //         // if let Some(_key) = e {
-    //         //     std::thread::sleep(std::time::Duration::from_millis(1000));
-    //         // }
-    //     }
-    //     // let mut highlight_key = for event in events.iter() {
-    //     //     match *event {
-    //     //         Event::Key { key, pressed, modifiers } if pressed == true => {
-    //     //             println!("{:?}, {:?}, {:?}", key, pressed, modifiers);
-    //     //             Some(key)
-    //     //         },
-    //     //         _ => {
-    //     //             println!("No key pressed");
-    //     //             None
-    //     //         },
-    //     //     }
-    //     // }
-    // }
 }
 
 impl KeyShredder {
