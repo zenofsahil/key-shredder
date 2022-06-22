@@ -31,8 +31,13 @@ impl Key {
         }
     }
 
-    pub fn draw(&self, ui: &mut egui::Ui) {
-        egui::Frame::none().fill(Color32::BLACK).show(ui, |ui| {
+    pub fn draw(&self, ui: &mut egui::Ui, pressed: bool) {
+        let key_color = if pressed {
+            Color32::GRAY
+        } else {
+            Color32::BLACK
+        };
+        egui::Frame::none().fill(key_color).show(ui, |ui| {
             ui.label(
                 egui::RichText::new(&self.character)
                 .size(20.)
@@ -65,6 +70,7 @@ pub struct Keyboard {
     pub first_row: Row,
     pub second_row: Row,
     pub third_row: Row,
+    pub pressed_key: Option<Key>
 }
 
 impl Keyboard {
@@ -76,7 +82,8 @@ impl Keyboard {
         Self {
             first_row,
             second_row,
-            third_row
+            third_row,
+            pressed_key: None
         }
     }
 
@@ -97,7 +104,18 @@ impl Keyboard {
                     ui.spacing_mut().item_spacing = (10.0, 0.0).into();
                     ui.horizontal(|ui| {
                         for key in &row.keys {
-                            key.draw(ui);
+                            match &self.pressed_key {
+                                Some(pressed_key) => {
+                                    if key.character == pressed_key.character {
+                                        key.draw(ui, true);
+                                    } else {
+                                        key.draw(ui, false);
+                                    }
+                                },
+                                None => {
+                                    key.draw(ui, false);
+                                }
+                            }
                         }
                     });
                 });
@@ -105,7 +123,9 @@ impl Keyboard {
         });
     }
 
-    pub fn press_key(&self, key: egui::Key) {
+    pub fn press_key(&mut self, k: egui::Key) {
+        let pressed_key = Key::from_key(k);
+        self.pressed_key = Some(pressed_key);
     }
 }
 
