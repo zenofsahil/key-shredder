@@ -32,16 +32,16 @@ impl Key {
     }
 
     pub fn draw(&self, ui: &mut egui::Ui, pressed: bool) {
-        let key_color = if pressed {
-            Color32::GRAY
+        let (text_color, key_color) = if pressed {
+            (Color32::BLACK, Color32::WHITE)
         } else {
-            Color32::BLACK
+            (Color32::WHITE, Color32::BLACK)
         };
         egui::Frame::none().fill(key_color).show(ui, |ui| {
             ui.label(
                 egui::RichText::new(&self.character)
                 .size(20.)
-                .color(Color32::WHITE)
+                .color(text_color)
             )
         });
     }
