@@ -1,7 +1,7 @@
 mod ui;
 
 use eframe::egui;
-use crate::ui::{ Keyboard, Key };
+use crate::ui::Keyboard;
 
 #[derive(Default)]
 pub struct KeyShredder {
