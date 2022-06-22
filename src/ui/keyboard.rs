@@ -88,30 +88,24 @@ impl Keyboard {
         egui::Frame::none()
         .inner_margin(egui::style::Margin::symmetric(ui.available_width() / 3.0 , 0.0))
         .show(ui, |ui| {
-            egui::Frame::none().inner_margin(egui::style::Margin::symmetric(10., 0.)).show(ui, |ui| {
-                ui.spacing_mut().item_spacing = (10.0, 0.0).into();
-                ui.horizontal(|ui| {
-                    for key in &self.first_row {
-                        key.draw(ui);
-                    }
-                });
-            });
-            egui::Frame::none().inner_margin(egui::style::Margin::symmetric(30., 0.)).show(ui, |ui| {
-                ui.spacing_mut().item_spacing = (10.0, 0.0).into();
-                ui.horizontal(|ui| {
-                    for key in &self.second_row {
-                        key.draw(ui);
-                    }
-                });
-            });
-            egui::Frame::none().inner_margin(egui::style::Margin::symmetric(40., 0.)).show(ui, |ui| {
-                ui.horizontal(|ui| {
+            let row_margins = vec![
+                (&self.first_row, (10., 0.)),
+                (&self.second_row, (30., 0.)),
+                (&self.third_row, (40., 0.))
+            ];
+
+            for (row, (x_margin, y_margin)) in row_margins {
+                egui::Frame::none()
+                .inner_margin(egui::style::Margin::symmetric(x_margin, y_margin))
+                .show(ui, |ui| {
                     ui.spacing_mut().item_spacing = (10.0, 0.0).into();
-                    for key in &self.third_row {
-                        key.draw(ui);
-                    }
+                    ui.horizontal(|ui| {
+                        for key in row {
+                            key.draw(ui);
+                        }
+                    });
                 });
-            });
+            }
         });
     }
 }
