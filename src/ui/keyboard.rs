@@ -51,31 +51,35 @@ impl Key {
 }
 
 #[derive(Default)]
+pub struct Row {
+    keys: Vec<Key>
+}
+
+impl Row {
+    pub fn from_chars(s: &str) -> Self {
+        let keys = s
+            .chars()
+            .map(|x| x.to_string())
+            .map(|x| Key::from_str(&x))
+            .collect();
+        Self {
+            keys
+        }
+    }
+}
+
+#[derive(Default)]
 pub struct Keyboard {
-    pub first_row: Vec<Key>,
-    pub second_row: Vec<Key>,
-    pub third_row: Vec<Key>,
+    pub first_row: Row,
+    pub second_row: Row,
+    pub third_row: Row,
 }
 
 impl Keyboard {
     pub fn default() -> Self {
-        let first_row = "qwertyuiop"
-            .chars()
-            .map(|x| x.to_string())
-            .map(|x| Key::from_str(&x))
-            .collect();
-
-        let second_row = "asdfghjkl"
-            .chars()
-            .map(|x| x.to_string())
-            .map(|x| Key::from_str(&x))
-            .collect();
-
-        let third_row = "zxcvbnm"
-            .chars()
-            .map(|x| x.to_string())
-            .map(|x| Key::from_str(&x))
-            .collect();
+        let first_row = Row::from_chars("qwertyuiop");
+        let second_row = Row::from_chars("asdfghjkl");
+        let third_row = Row::from_chars("zxcvbnm");
 
         Self {
             first_row,
@@ -100,13 +104,16 @@ impl Keyboard {
                 .show(ui, |ui| {
                     ui.spacing_mut().item_spacing = (10.0, 0.0).into();
                     ui.horizontal(|ui| {
-                        for key in row {
+                        for key in &row.keys {
                             key.draw(ui);
                         }
                     });
                 });
             }
         });
+    }
+
+    pub fn press_key(&self, key: egui::Key) {
     }
 }
 
@@ -139,8 +146,8 @@ mod test_keyboard_struct {
     #[test]
     fn test_keyboard_initialization() {
         let keyboard = Keyboard::default();
-        assert_eq!(keyboard.first_row.len(), 10);
-        assert_eq!(keyboard.second_row.len(), 9);
-        assert_eq!(keyboard.third_row.len(), 7);
+        assert_eq!(keyboard.first_row.keys.len(), 10);
+        assert_eq!(keyboard.second_row.keys.len(), 9);
+        assert_eq!(keyboard.third_row.keys.len(), 7);
     }
 }
