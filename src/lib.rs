@@ -31,7 +31,6 @@ impl eframe::App for KeyShredder {
                     pressed: _,
                     modifiers,
                 } if modifiers.mac_cmd || modifiers.command => {
-                        println!("helloi");
                         frame.quit()
                 },
                 _ => { },
