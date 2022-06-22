@@ -21,9 +21,6 @@ impl eframe::App for KeyShredder {
             match *event {
                 egui::Event::Key { key, pressed, modifiers: _ } if pressed == true => {
                     self.keyboard.pressed_key = Some(Key::from_key(key));
-                    egui::TopBottomPanel::bottom("Keyboard").show(ctx, |ui| {
-                        self.keyboard.draw(ui);
-                    });
                 },
                 _ => { },
             }
