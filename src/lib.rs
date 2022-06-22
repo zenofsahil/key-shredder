@@ -9,7 +9,7 @@ pub struct KeyShredder {
 }
 
 impl eframe::App for KeyShredder {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         ctx.set_visuals(egui::Visuals::dark());
         egui::TopBottomPanel::top("TopPanel").show(ctx, |ui| {
             ui.with_layout(egui::Layout::right_to_left(), |ui| {
@@ -19,8 +19,20 @@ impl eframe::App for KeyShredder {
         let events = ctx.input().events.clone(); // clone to avoid deadlock
         for event in events.iter() {
             match *event {
-                egui::Event::Key { key, pressed, modifiers: _ } if pressed == true => {
+                egui::Event::Key {
+                    key,
+                    pressed,
+                    modifiers: _
+                } if pressed == true => {
                     self.keyboard.pressed_key = Some(Key::from_key(key));
+                },
+                egui::Event::Key {
+                    key: egui::Key::W,
+                    pressed: _,
+                    modifiers,
+                } if modifiers.mac_cmd || modifiers.command => {
+                        println!("helloi");
+                        frame.quit()
                 },
                 _ => { },
             }
