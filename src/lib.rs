@@ -1,6 +1,11 @@
 mod ui;
 
-use eframe::egui;
+use eframe::egui::{
+    self,
+    TextFormat,
+    text::LayoutJob,
+    Color32,
+    epaint::text::{FontId, FontFamily}};
 use crate::ui::Keyboard;
 
 #[derive(Default)]
@@ -20,8 +25,6 @@ impl eframe::App for KeyShredder {
         egui::CentralPanel::default().show(ctx, |ui| {
 
             let mut layouter = |ui: &egui::Ui, string: &str, wrap_width: f32| {
-                use eframe::epaint::{Color32, text::{LayoutJob, TextFormat}, FontFamily, FontId};
-
                 let mut job = LayoutJob::default();
                 job.wrap.max_width = wrap_width;
 
@@ -65,13 +68,26 @@ impl eframe::App for KeyShredder {
 
                 ui.fonts().layout_job(job)
             };
-            ui.add(
-                egui::TextEdit::multiline(&mut self.text)
-                .desired_width(f32::INFINITY)
-                .hint_text("Enter you text here")
-                .layouter(&mut layouter)
+
+            let desired_width = f32::INFINITY;
+            let hint_text = "Enter your text here";
+
+            let text_edit: egui::TextEdit = egui::TextEdit::multiline(&mut self.text)
+                .desired_width(desired_width)
+                .layouter(&mut layouter);
+
+            let text_edit_output = text_edit.show(ui);
+            let painter = ui.painter_at(text_edit_output.response.rect);
+            let galley = painter.layout(
+                hint_text.to_string(),
+                FontId::new(14., FontFamily::Monospace),
+                Color32::LIGHT_RED,
+                desired_width
             );
+
+            painter.galley(text_edit_output.text_draw_pos, galley);
         });
+
         let events = ctx.input().events.clone(); // clone to avoid deadlock
         for event in events.iter() {
             match *event {
