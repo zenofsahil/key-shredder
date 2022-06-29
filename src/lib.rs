@@ -24,26 +24,20 @@ impl eframe::App for KeyShredder {
         });
         egui::CentralPanel::default().show(ctx, |ui| {
 
+            let hint_text = "Enter your text here";
+
             let mut layouter = |ui: &egui::Ui, string: &str, wrap_width: f32| {
                 let mut job = LayoutJob::default();
                 job.wrap.max_width = wrap_width;
 
-                for word in string.split(" ") {
-                    match word {
-                        "hello" => {
+                let hint_words = hint_text.split(" ");
+                let user_words = string.split(" ");
+
+                for (hint_word, user_word) in hint_words.zip(user_words) {
+                    match (hint_word, user_word) {
+                        (hint_word, user_word) if hint_word == user_word => {
                             job.append(
-                                &format!("{} ", word),
-                                0.0,
-                                TextFormat {
-                                    font_id: FontId::new(14.0, FontFamily::Monospace),
-                                    color: Color32::YELLOW,
-                                    ..Default::default()
-                                },
-                            );
-                        },
-                        "world" => {
-                            job.append(
-                                &format!("{} ", word),
+                                &format!("{} ", user_word),
                                 0.0,
                                 TextFormat {
                                     font_id: FontId::new(14.0, FontFamily::Monospace),
@@ -52,17 +46,32 @@ impl eframe::App for KeyShredder {
                                 },
                             );
                         },
-                        _ => {
+                        (hint_word, user_word) if hint_word.len() != user_word.len() => {
                             job.append(
-                                &format!("{} ", word),
+                                &format!("{} ", user_word),
                                 0.0,
                                 TextFormat {
                                     font_id: FontId::new(14.0, FontFamily::Monospace),
-                                    color: Color32::WHITE,
+                                    color: Color32::YELLOW,
                                     ..Default::default()
                                 },
                             );
-                        }
+                        },
+                        (hint_word, user_word) if (
+                            (hint_word.len() == user_word.len()) &&
+                            (hint_word != user_word)
+                        ) => {
+                            job.append(
+                                &format!("{} ", user_word),
+                                0.0,
+                                TextFormat {
+                                    font_id: FontId::new(14.0, FontFamily::Monospace),
+                                    color: Color32::RED,
+                                    ..Default::default()
+                                },
+                            );
+                        },
+                        _ => { println!("{}, {}", hint_word, user_word) }
                     }
                 }
 
@@ -70,18 +79,17 @@ impl eframe::App for KeyShredder {
             };
 
             let desired_width = f32::INFINITY;
-            let hint_text = "Enter your text here";
-
             let text_edit: egui::TextEdit = egui::TextEdit::multiline(&mut self.text)
                 .desired_width(desired_width)
                 .layouter(&mut layouter);
 
             let text_edit_output = text_edit.show(ui);
             let painter = ui.painter_at(text_edit_output.response.rect);
+
             let galley = painter.layout(
                 hint_text.to_string(),
                 FontId::new(14., FontFamily::Monospace),
-                Color32::LIGHT_RED,
+                Color32::from_rgba_premultiplied(100, 100, 100, 0),
                 desired_width
             );
 
