@@ -1,5 +1,7 @@
 mod ui;
+mod custom_types;
 
+use custom_types::ReservedString;
 use eframe::egui::{
     self,
     TextFormat,
@@ -11,7 +13,7 @@ use crate::ui::Keyboard;
 #[derive(Default)]
 pub struct KeyShredder {
     keyboard: Keyboard,
-    text: String
+    text: ReservedString
 }
 
 impl eframe::App for KeyShredder {
@@ -29,6 +31,13 @@ impl eframe::App for KeyShredder {
             let mut layouter = |ui: &egui::Ui, string: &str, wrap_width: f32| {
                 let mut job = LayoutJob::default();
                 job.wrap.max_width = wrap_width;
+
+                // This block will not be needed if we have a custom string
+                // type limiting the characters the string can hold in the
+                // first place.
+                // if string.len() > hint_text.len() {
+                //     string = &string[0..hint_text.len()];
+                // }
 
                 let hint_words = hint_text.split(" ");
                 let user_words = string.split(" ");
@@ -131,7 +140,7 @@ impl KeyShredder {
     pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
         Self {
             keyboard: Keyboard::default(),
-            text: String::new()
+            text: ReservedString(String::new(), 10)
         }
     }
 }
