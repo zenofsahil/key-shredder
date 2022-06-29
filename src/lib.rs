@@ -55,13 +55,13 @@ impl eframe::App for KeyShredder {
                                 },
                             );
                         },
-                        (hint_word, user_word) if hint_word.len() != user_word.len() => {
+                        (hint_word, user_word) if hint_word.len() < user_word.len() => {
                             job.append(
                                 &format!("{} ", user_word),
                                 0.0,
                                 TextFormat {
                                     font_id: FontId::new(14.0, FontFamily::Monospace),
-                                    color: Color32::YELLOW,
+                                    color: Color32::RED,
                                     ..Default::default()
                                 },
                             );
@@ -76,6 +76,17 @@ impl eframe::App for KeyShredder {
                                 TextFormat {
                                     font_id: FontId::new(14.0, FontFamily::Monospace),
                                     color: Color32::RED,
+                                    ..Default::default()
+                                },
+                            );
+                        },
+                        (hint_word, user_word) if hint_word.len() > user_word.len() => {
+                            job.append(
+                                &format!("{} ", user_word),
+                                0.0,
+                                TextFormat {
+                                    font_id: FontId::new(14.0, FontFamily::Monospace),
+                                    color: Color32::YELLOW,
                                     ..Default::default()
                                 },
                             );
@@ -140,7 +151,7 @@ impl KeyShredder {
     pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
         Self {
             keyboard: Keyboard::default(),
-            text: ReservedString(String::new(), 10)
+            text: ReservedString(String::new(), "Enter your text here".len())
         }
     }
 }
