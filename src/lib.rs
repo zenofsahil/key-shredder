@@ -13,7 +13,8 @@ use crate::ui::Keyboard;
 #[derive(Default)]
 pub struct KeyShredder {
     keyboard: Keyboard,
-    text: ReservedString
+    text: ReservedString,
+    corpus: Vec<String>
 }
 
 impl eframe::App for KeyShredder {
@@ -24,25 +25,19 @@ impl eframe::App for KeyShredder {
                 ui.heading("Key Shredder");
             })
         });
+        let hint_text = &self.corpus[0].clone();
         egui::CentralPanel::default().show(ctx, |ui| {
-
-            let hint_text = "Enter your text here";
 
             let mut layouter = |ui: &egui::Ui, string: &str, wrap_width: f32| {
                 let mut job = LayoutJob::default();
                 job.wrap.max_width = wrap_width;
 
-                // This block will not be needed if we have a custom string
-                // type limiting the characters the string can hold in the
-                // first place.
-                // if string.len() > hint_text.len() {
-                //     string = &string[0..hint_text.len()];
-                // }
-
                 let hint_words = hint_text.split(" ");
                 let user_words = string.split(" ");
 
-                for (hint_word, user_word) in hint_words.zip(user_words) {
+                let zipped_words = hint_words.zip(user_words);
+
+                for (hint_word, user_word) in zipped_words {
                     match (hint_word, user_word) {
                         (hint_word, user_word) if hint_word == user_word => {
                             job.append(
@@ -98,6 +93,13 @@ impl eframe::App for KeyShredder {
                 ui.fonts().layout_job(job)
             };
 
+            if self.text.0 == self.corpus[0] {
+                if self.corpus.len() > 1 {
+                    self.corpus.remove(0);
+                    self.text = ReservedString(String::new(), self.corpus[0].len())
+                }
+            }
+
             let desired_width = f32::INFINITY;
             let text_edit: egui::TextEdit = egui::TextEdit::multiline(&mut self.text)
                 .desired_width(desired_width)
@@ -149,9 +151,20 @@ impl eframe::App for KeyShredder {
 
 impl KeyShredder {
     pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
+        let prompt = String::from("Enter your text here");
+        let text = ReservedString(String::new(), prompt.len());
+
+        let corpus = vec![
+            "Enter your text",
+            "This is the second line",
+            "This is the third line"
+        ];
+        let corpus = corpus.iter().map(|x| x.to_string()).collect();
+
         Self {
             keyboard: Keyboard::default(),
-            text: ReservedString(String::new(), "Enter your text here".len())
+            corpus,
+            text,
         }
     }
 }
