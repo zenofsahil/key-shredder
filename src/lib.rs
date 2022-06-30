@@ -39,6 +39,9 @@ impl eframe::App for KeyShredder {
 
                 for (hint_word, user_word) in zipped_words {
                     match (hint_word, user_word) {
+                        (_, "") => {
+                            continue
+                        },
                         (hint_word, user_word) if hint_word == user_word => {
                             job.append(
                                 &format!("{} ", user_word),
