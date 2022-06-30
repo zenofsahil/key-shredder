@@ -2,7 +2,17 @@ use std::convert::AsRef;
 use std::ops::Range;
 use eframe::egui::TextBuffer;
 
-#[derive(Default)]
+/// The ReservedString will act as the buffer for the Key Shredder app text
+/// widget. The buffer used is usually a String but any type that implements
+/// the `eframe::egui::TextBuffer` trait can be used. 
+///
+/// The first value is the actual String type that will act as the underlying 
+/// buffer and the second value is the length of the hint/prompt that the user
+/// is supposed to follow along to. This value acts as the limit to how many
+/// characters can be added to the underlying buffer as we don't want the user
+/// to be able to continue typing and adding to the text widget buffer once the 
+/// prompt has been completed. 
+#[derive(Default, Debug)]
 pub struct ReservedString(pub String, pub usize);
 
 impl AsRef<str> for ReservedString {
