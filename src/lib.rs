@@ -1,6 +1,7 @@
 mod ui;
 mod custom_types;
 
+use std::time::{SystemTime, UNIX_EPOCH};
 use custom_types::ReservedString;
 use eframe::egui::{
     self,
@@ -10,19 +11,38 @@ use eframe::egui::{
     epaint::text::{FontId, FontFamily}};
 use crate::ui::Keyboard;
 
-#[derive(Default)]
 pub struct KeyShredder {
     keyboard: Keyboard,
     text: ReservedString,
-    corpus: Vec<String>
+    corpus: Vec<String>,
+    start_time: Option<u64>,
+    word_completion_time: std::collections::HashMap<String, u64>
 }
 
 impl eframe::App for KeyShredder {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        match self.text.0.len() {
+            0 => {
+                self.start_time = None // Reset start time if all the text has been removed
+            },
+            1 => {
+                let in_ms = get_current_time();
+                if let None = self.start_time {
+                    self.start_time = Some(in_ms)
+                }
+            }
+            _ => {}
+        };
+
         ctx.set_visuals(egui::Visuals::dark());
         egui::TopBottomPanel::top("TopPanel").show(ctx, |ui| {
             ui.with_layout(egui::Layout::right_to_left(), |ui| {
                 ui.heading("Key Shredder");
+                // println!("In {:?}", self.start_time);
+                if let Some(time) = self.start_time {
+                    // println!("Found time");
+                    ui.heading(format!("{}", time));
+                }
             })
         });
         let hint_text = &self.corpus[0].clone();
@@ -43,6 +63,11 @@ impl eframe::App for KeyShredder {
                             continue
                         },
                         (hint_word, user_word) if hint_word == user_word => {
+
+                            self.word_completion_time
+                                .entry(user_word.to_string())
+                                .or_insert(get_current_time());
+
                             job.append(
                                 &format!("{} ", user_word),
                                 0.0,
@@ -119,7 +144,18 @@ impl eframe::App for KeyShredder {
             );
 
             painter.galley(text_edit_output.text_draw_pos, galley);
+
+            ui.vertical_centered(|ui| {
+                if let Some(time) = self.start_time {
+                    ui.label(format!("{}", time));
+                }
+                for (word, time) in &self.word_completion_time {
+                    ui.label(format!("{} : {}", word, time));
+                }
+            })
         });
+
+        
 
         let events = ctx.input().events.clone(); // clone to avoid deadlock
         for event in events.iter() {
@@ -160,14 +196,31 @@ impl KeyShredder {
             "This is the third line"
         ];
         let corpus: Vec<_> = corpus.iter().map(|x| x.to_string()).collect();
-
         let text = ReservedString(String::new(), corpus[0].len() - 1);
 
-        Self {
+        // let (word_tx, word_rx) = channel();
+
+        let key_shredder = Self {
             keyboard: Keyboard::default(),
             corpus,
             text,
-        }
+            // start_timer_tx,
+            start_time: None,
+            word_completion_time: std::collections::HashMap::new()
+        };
+
+        key_shredder
     }
 }
 
+fn get_current_time() -> u64 {
+    let now = SystemTime::now();
+    let now_from_epoch = now
+        .duration_since(UNIX_EPOCH)
+        .expect("Time went backwards");
+
+    let in_ms = now_from_epoch.as_secs() * 1000 +
+        now_from_epoch.subsec_nanos() as u64 / 1_000_000;
+
+    in_ms
+}
