@@ -151,15 +151,14 @@ impl eframe::App for KeyShredder {
 
 impl KeyShredder {
     pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
-        let prompt = String::from("Enter your text here");
-        let text = ReservedString(String::new(), prompt.len());
-
         let corpus = vec![
             "Enter your text",
             "This is the second line",
             "This is the third line"
         ];
-        let corpus = corpus.iter().map(|x| x.to_string()).collect();
+        let corpus: Vec<_> = corpus.iter().map(|x| x.to_string()).collect();
+
+        let text = ReservedString(String::new(), corpus[0].len() - 1);
 
         Self {
             keyboard: Keyboard::default(),
