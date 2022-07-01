@@ -1,8 +1,9 @@
 mod ui;
 mod custom_types;
+mod statistics;
 
-use std::time::{SystemTime, UNIX_EPOCH};
 use custom_types::ReservedString;
+use statistics::WordTypingTime;
 use eframe::egui::{
     self,
     TextFormat,
@@ -15,39 +16,46 @@ pub struct KeyShredder {
     keyboard: Keyboard,
     text: ReservedString,
     corpus: Vec<String>,
-    start_time: Option<u64>,
-    word_completion_time: std::collections::HashMap<String, u64>
+    word_completion_time: std::collections::HashMap<String, WordTypingTime>
 }
 
 impl eframe::App for KeyShredder {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
-        match self.text.0.len() {
-            0 => {
-                self.start_time = None // Reset start time if all the text has been removed
-            },
-            1 => {
-                let in_ms = get_current_time();
-                if let None = self.start_time {
-                    self.start_time = Some(in_ms)
+        let hint_text = &self.corpus[0].clone();
+
+        let _ = hint_text
+            .split(" ")
+            .zip(self.text.0.split(" "))
+            .for_each(|word_tuple| {
+                match word_tuple {
+                    (hint_word, user_word) if user_word.len() == 1 => {
+                        // Word beginning
+                        self.word_completion_time
+                            .entry(hint_word.to_string())
+                            .or_insert(
+                                WordTypingTime::for_word(hint_word.to_string())
+                            );
+                    },
+                    (hint_word, user_word) if hint_word == user_word => {
+                        let typing_time = self.word_completion_time
+                            .get_mut(hint_word).expect("Should've been there");
+
+                        if let None = typing_time.time.end_time {
+                            typing_time.time.end()
+                        }
+                    },
+                    _ => {}
                 }
-            }
-            _ => {}
-        };
+            });
 
         ctx.set_visuals(egui::Visuals::dark());
         egui::TopBottomPanel::top("TopPanel").show(ctx, |ui| {
             ui.with_layout(egui::Layout::right_to_left(), |ui| {
                 ui.heading("Key Shredder");
-                // println!("In {:?}", self.start_time);
-                if let Some(time) = self.start_time {
-                    // println!("Found time");
-                    ui.heading(format!("{}", time));
-                }
             })
         });
-        let hint_text = &self.corpus[0].clone();
-        egui::CentralPanel::default().show(ctx, |ui| {
 
+        egui::CentralPanel::default().show(ctx, |ui| {
             let mut layouter = |ui: &egui::Ui, string: &str, wrap_width: f32| {
                 let mut job = LayoutJob::default();
                 job.wrap.max_width = wrap_width;
@@ -63,11 +71,6 @@ impl eframe::App for KeyShredder {
                             continue
                         },
                         (hint_word, user_word) if hint_word == user_word => {
-
-                            self.word_completion_time
-                                .entry(user_word.to_string())
-                                .or_insert(get_current_time());
-
                             job.append(
                                 &format!("{} ", user_word),
                                 0.0,
@@ -124,7 +127,8 @@ impl eframe::App for KeyShredder {
             if self.text.0 == self.corpus[0] {
                 if self.corpus.len() > 1 {
                     self.corpus.remove(0);
-                    self.text = ReservedString(String::new(), self.corpus[0].len())
+                    self.text = ReservedString(String::new(), self.corpus[0].len());
+                    self.word_completion_time = Default::default()
                 }
             }
 
@@ -146,11 +150,13 @@ impl eframe::App for KeyShredder {
             painter.galley(text_edit_output.text_draw_pos, galley);
 
             ui.vertical_centered(|ui| {
-                if let Some(time) = self.start_time {
-                    ui.label(format!("{}", time));
-                }
                 for (word, time) in &self.word_completion_time {
-                    ui.label(format!("{} : {}", word, time));
+                    ui.label(format!(
+                        "{} : start_time: {:?}, end_time: {:?}, elapsed: {:?}",
+                        word,
+                        time.time.start_time,
+                        time.time.end_time,
+                        time.time.time_taken()));
                 }
             })
         });
@@ -204,23 +210,10 @@ impl KeyShredder {
             keyboard: Keyboard::default(),
             corpus,
             text,
-            // start_timer_tx,
-            start_time: None,
-            word_completion_time: std::collections::HashMap::new()
+            word_completion_time: Default::default()
         };
 
         key_shredder
     }
 }
 
-fn get_current_time() -> u64 {
-    let now = SystemTime::now();
-    let now_from_epoch = now
-        .duration_since(UNIX_EPOCH)
-        .expect("Time went backwards");
-
-    let in_ms = now_from_epoch.as_secs() * 1000 +
-        now_from_epoch.subsec_nanos() as u64 / 1_000_000;
-
-    in_ms
-}
