@@ -49,6 +49,7 @@ impl eframe::App for KeyShredder {
             });
 
         ctx.set_visuals(egui::Visuals::dark());
+
         egui::TopBottomPanel::top("TopPanel").show(ctx, |ui| {
             ui.with_layout(egui::Layout::right_to_left(), |ui| {
                 ui.heading("Key Shredder");
@@ -161,8 +162,6 @@ impl eframe::App for KeyShredder {
             })
         });
 
-        
-
         let events = ctx.input().events.clone(); // clone to avoid deadlock
         for event in events.iter() {
             match *event {
@@ -203,8 +202,6 @@ impl KeyShredder {
         ];
         let corpus: Vec<_> = corpus.iter().map(|x| x.to_string()).collect();
         let text = ReservedString(String::new(), corpus[0].len() - 1);
-
-        // let (word_tx, word_rx) = channel();
 
         let key_shredder = Self {
             keyboard: Keyboard::default(),
